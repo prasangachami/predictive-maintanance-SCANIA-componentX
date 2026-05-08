@@ -9,7 +9,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.GCP_REGION }}
   REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
-  SERVICE_NAME: scania-predictive-ml-api
+  SERVICE_NAME: ml-api-key
 
 jobs:
   deploy:
