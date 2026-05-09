@@ -1,4 +1,3 @@
-run_experiments.py
 """
 run_experiments.py
 ==================
@@ -62,7 +61,7 @@ warnings.filterwarnings("ignore")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
-from src.scania_pipeline  import SCANIAPipeline
+from scania_pipeline  import SCANIAPipeline
 from src.cost_matrix  import CostMatrix
 from src.experiments  import (
     run_exp1_log_loss,
