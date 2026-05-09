@@ -1,0 +1,25 @@
+======================================================================
+EXPERIMENT REPORT
+Thesis: Cost-Aware Learning for Failure Prediction
+Generated: 2026-05-02 02:47:18
+======================================================================
+
+RESEARCH QUESTIONS
+────────────────────────────────────────
+RQ1: Does cost-aware training reduce total maintenance cost
+     compared to standard loss functions?
+RQ2: How does varying failure-class weight affect FN/FP trade-off?
+RQ3: How sensitive is performance to class weights?
+
+EXPERIMENT RESULTS
+────────────────────────────────────────
+Experiment                            Val cost   Test cost      AUC
+─────────────────────────────────────────────────────────────────
+exp3_cost_aware_focal                 48916.00    49099.00   0.6647
+
+
+THRESHOLD ANALYSIS
+────────────────────────────────────────
+Exp 3 — Cost-aware focal (prop  t1=0.010  t2=0.470  t3=0.490  t4=0.510
+
+======================================================================
