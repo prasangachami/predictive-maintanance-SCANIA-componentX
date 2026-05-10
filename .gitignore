@@ -1,4 +1,65 @@
-data/*.csv
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Data files (never commit raw data to git)
 data/
-.DS_Store
-.venu
+*.csv
+*.parquet
+*.h5
+*.pkl
+*.joblib
+
+# Model artifacts
+models/
+*.pt
+*.pth
+*.onnx
+*.pb
+
+# Google Cloud credentials (NEVER commit these)
+*.json
+service-account*.json
+gcp-key*.json
+application_default_credentials.json
+
+# Secrets and environment files
+.env
+.env.*
+secrets/
+credentials/
+
+# IDE
+.vscode/
+.idea/
+*.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Docker
+.docker/
+
+# Terraform state (contains secrets)
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+.envrc

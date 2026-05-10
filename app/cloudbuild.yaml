@@ -1,0 +1,67 @@
+steps:
+  # Step 1 — Run tests before building anything
+  - name: 'python:3.11-slim'
+    id: 'run-tests'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        pip install -r requirements.txt --quiet
+        pip install pytest httpx pytest-asyncio --quiet
+        pytest tests/ -v --tb=short
+
+  # Step 2 — Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:latest'
+      - '.'
+    waitFor: ['run-tests']
+
+  # Step 3 — Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}'
+    waitFor: ['build-image']
+
+  # Step 4 — Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-cloud-run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--min-instances=0'
+      - '--max-instances=10'
+      - '--port=8080'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=MODEL_VERSION=${COMMIT_SHA}'
+    waitFor: ['push-image']
+
+# Substitution variables — override these in the Cloud Build trigger config
+substitutions:
+  _REGION:        europe-north1
+  _REPO:          predictive-maintenance-scania-images
+  _SERVICE_NAME:  scania-predictive-ml-api
+  _BUCKET:        predictive-maintenance-scania-artifacts
+  _MODEL_VERSION: v1.0.0
+  _ACTIVE_MODEL:  exp1
+
+# Store build logs in Cloud Storage
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1200s'   # 20 minute timeout

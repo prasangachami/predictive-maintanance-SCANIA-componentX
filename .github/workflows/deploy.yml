@@ -1,0 +1,36 @@
+name: Deploy ML Model to GCP
+
+on:
+  push:
+    branches:
+      - deploy/prod
+
+jobs:
+  deploy:
+    name: Trigger Cloud Build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (keyless)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Submit build to Cloud Build
+        run: |
+          gcloud builds submit \
+            --config=cloudbuild.yaml \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --substitutions=_REGION=${{ secrets.GCP_REGION }},_REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }},_SERVICE_NAME=scania-predictive-ml-api \
+            --suppress-logs
