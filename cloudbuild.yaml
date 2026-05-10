@@ -1,4 +1,14 @@
 steps:
+  # Step 0 — Clone the repository
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'clone-repo'
+    args:
+      - 'clone'
+      - '--branch=deploy/prod'
+      - '--depth=1'
+      - 'https://github.com/prasangachami/predictive-maintanance-SCANIA-componentX.git'
+      - '.'
+
   # Step 1 — Run tests
   - name: 'python:3.11-slim'
     id: 'run-tests'
@@ -9,6 +19,7 @@ steps:
         pip install -r requirements.txt --quiet
         pip install pytest httpx pytest-asyncio --quiet
         pytest tests/ -v --tb=short
+    waitFor: ['clone-repo']
 
   # Step 2 — Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
@@ -51,7 +62,7 @@ steps:
       - '--set-env-vars=GCP_PROJECT_ID=${PROJECT_ID},GCS_BUCKET=${_BUCKET},MODEL_VERSION=${_MODEL_VERSION},ACTIVE_MODEL=${_ACTIVE_MODEL}'
     waitFor: ['push-image']
 
-  # Step 5 — Register model version in Vertex AI
+  # Step 5 — Register model in Vertex AI
   - name: 'python:3.11-slim'
     id: 'register-model'
     entrypoint: bash
@@ -75,4 +86,4 @@ substitutions:
 options:
   logging: CLOUD_LOGGING_ONLY
 
-timeout: '1200s'
+timeout: '1200s

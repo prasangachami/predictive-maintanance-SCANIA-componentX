@@ -30,6 +30,7 @@ jobs:
       - name: Submit build to Cloud Build
         run: |
           gcloud builds submit \
+            --no-source \
             --config=cloudbuild.yaml \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --substitutions=_REGION=${{ secrets.GCP_REGION }},_REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }},_SERVICE_NAME=scania-predictive-ml-api \
