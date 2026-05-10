@@ -31,6 +31,8 @@ ENV PORT=8080
 ENV OUTPUTS_DIR=outputs/models
 ENV ACTIVE_MODEL=exp3
 ENV MODEL_VERSION=1.0.0
+ENV GCP_PROJECT_ID=predictive-maintenance-scania
+ENV GCS_BUCKET=predictive-maintenance-scania-artifacts
 
 EXPOSE 8080
 
