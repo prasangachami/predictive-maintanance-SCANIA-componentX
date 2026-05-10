@@ -33,5 +33,4 @@ jobs:
             --no-source \
             --config=cloudbuild.yaml \
             --project=${{ secrets.GCP_PROJECT_ID }} \
-            --substitutions=_REGION=${{ secrets.GCP_REGION }},_REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }},_SERVICE_NAME=scania-predictive-ml-api \
-            --suppress-logs
+            --substitutions=_REGION=${{ secrets.GCP_REGION }},_REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }},_SERVICE_NAME=scania-predictive-ml-api,_BUCKET=${{ secrets.GCS_BUCKET }},_MODEL_VERSION=${{ secrets.MODEL_VERSION }},_ACTIVE_MODEL=${{ secrets.ACTIVE_MODEL }},COMMIT_SHA=${{ github.sha }}
