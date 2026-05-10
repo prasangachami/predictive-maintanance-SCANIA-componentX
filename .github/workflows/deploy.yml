@@ -1,3 +1,4 @@
+cat > .github/workflows/deploy.yml << 'EOF'
 name: Deploy ML Model to GCP
 
 on:
@@ -32,11 +33,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run tests
+      - name: Run fast tests only (no data required)
         run: |
           pip install -r requirements.txt --quiet
           pip install pytest httpx pytest-asyncio --quiet
-          pytest tests/ -v --tb=short
+          pytest tests/test_api.py tests/test_cost_matrix.py -v --tb=short -m "not slow"
 
       - name: Configure Docker for Artifact Registry
         run: |
@@ -75,9 +76,13 @@ jobs:
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --format="value(status.url)")
           echo "API live at: $URL"
-          echo "API_URL=$URL" >> $GITHUB_ENV
 
       - name: Smoke test deployed API
         run: |
           sleep 10
-          curl -f $API_URL/health || echo "Health check failed — check Cloud Run logs"
+          URL=$(gcloud run services describe scania-predictive-ml-api \
+            --region=${{ secrets.GCP_REGION }} \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --format="value(status.url)")
+          curl -f $URL/health
+EOF
