@@ -53,9 +53,12 @@ steps:
 
 # Substitution variables — override these in the Cloud Build trigger config
 substitutions:
-  _REGION: europe-north1
-  _REPO: scania-ml-images
-  _SERVICE_NAME: scania-predictive-ml-api
+  _REGION:        europe-north1
+  _REPO:          predictive-maintenance-scania-images
+  _SERVICE_NAME:  scania-predictive-ml-api
+  _BUCKET:        predictive-maintenance-scania-artifacts
+  _MODEL_VERSION: v1.0.0
+  _ACTIVE_MODEL:  exp1
 
 # Store build logs in Cloud Storage
 options:
