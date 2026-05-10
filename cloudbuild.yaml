@@ -1,84 +1,28 @@
+# cloudbuild.yaml
+# Note: CI/CD runs via GitHub Actions (deploy.yml)
+# This file is kept for local testing with: gcloud builds submit
+
 steps:
-  - name: gcr.io/cloud-builders/git
-    id: clone-repo
-    args:
-      - clone
-      - --branch=deploy/prod
-      - --depth=1
-      - https://github.com/prasangachami/predictive-maintanance-SCANIA-componentX.git
-      - .
-
-  - name: python:3.11-slim
-    id: run-tests
-    entrypoint: bash
-    args:
-      - -c
-      - |
-        pip install -r requirements.txt --quiet
-        pip install pytest httpx pytest-asyncio --quiet
-        pytest tests/ -v --tb=short
-    waitFor:
-      - clone-repo
-
   - name: gcr.io/cloud-builders/docker
     id: build-image
     args:
       - build
       - -t
-      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}
-      - -t
       - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:latest
       - .
-    waitFor:
-      - run-tests
 
   - name: gcr.io/cloud-builders/docker
     id: push-image
     args:
       - push
-      - --all-tags
-      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:latest
     waitFor:
       - build-image
-
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    id: deploy-cloud-run
-    entrypoint: gcloud
-    args:
-      - run
-      - deploy
-      - ${_SERVICE_NAME}
-      - --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}
-      - --region=${_REGION}
-      - --platform=managed
-      - --memory=2Gi
-      - --cpu=2
-      - --min-instances=0
-      - --max-instances=10
-      - --port=8080
-      - --allow-unauthenticated
-      - --set-env-vars=GCP_PROJECT_ID=${PROJECT_ID},GCS_BUCKET=${_BUCKET},MODEL_VERSION=${_MODEL_VERSION},ACTIVE_MODEL=${_ACTIVE_MODEL}
-    waitFor:
-      - push-image
-
-  - name: python:3.11-slim
-    id: register-model
-    entrypoint: bash
-    args:
-      - -c
-      - |
-        pip install google-cloud-aiplatform google-cloud-storage --quiet
-        python -m src.registry --version ${_MODEL_VERSION} --experiment ${_ACTIVE_MODEL}
-    waitFor:
-      - deploy-cloud-run
 
 substitutions:
   _REGION: europe-north1
   _REPO: predictive-maintenance-scania-images
   _SERVICE_NAME: scania-predictive-ml-api
-  _BUCKET: predictive-maintenance-scania-artifacts
-  _MODEL_VERSION: v1.0.0
-  _ACTIVE_MODEL: exp1
 
 options:
   logging: CLOUD_LOGGING_ONLY
