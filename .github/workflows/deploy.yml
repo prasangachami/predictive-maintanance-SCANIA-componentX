@@ -1,4 +1,3 @@
-cat > .github/workflows/deploy.yml << 'EOF'
 name: Deploy ML Model to GCP
 
 on:
@@ -85,4 +84,3 @@ jobs:
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --format="value(status.url)")
           curl -f $URL/health
-EOF
