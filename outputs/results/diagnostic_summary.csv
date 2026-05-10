@@ -1,0 +1,8 @@
+check,value,status
+AUC_no_weight,0.5476,WARN
+AUC_weighted,0.5566,WARN
+AP_weighted,0.0306,WARN
+probs_below_t1,0.0,WARN
+zero_importance_features,54.0,WARN
+fn_weight_0.5_cost,28050.0,FINDING
+fn_weight_1.0_cost,49671.0,FINDING

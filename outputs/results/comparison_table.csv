@@ -1,0 +1,4 @@
+experiment_name,loss_name,val_total_cost,test_total_cost,val_roc_auc,test_roc_auc,threshold_t1,threshold_t4,best_iteration,cost_reduction_pct
+exp1_log_loss,log_loss,43472.0,46393.0,0.6326876422666826,0.6340103644506238,0.29000000000000004,0.35000000000000003,8,0.0
+exp2_focal_loss,focal_loss,43987.0,46345.0,0.6285536719779562,0.6326997268128453,0.23,0.29000000000000004,215,0.1
+exp4_cost_aware_fn05,cost_aware_focal_loss,28700.0,28050.0,0.5,0.5,0.01,0.06999999999999999,150,39.54
