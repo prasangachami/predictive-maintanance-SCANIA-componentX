@@ -47,20 +47,20 @@ def load_all():
     """Load preprocessing pipeline + all experiment models at startup."""
     global _pipeline, _models
 
-    # Load preprocessing pipeline
+    logger.info(f"Loading pipeline from {PIPELINE_PATH}...")
     if not PIPELINE_PATH.exists():
         raise FileNotFoundError(f"Pipeline not found at {PIPELINE_PATH}")
-    _pipeline = joblib.load(PIPELINE_PATH)
-    logger.info(f"Loaded pipeline from {PIPELINE_PATH}")
 
-    # Load whichever experiment models exist
+    _pipeline = joblib.load(PIPELINE_PATH)
+    logger.info("Pipeline loaded successfully.")
+
     for exp_name, path in MODEL_PATHS.items():
-        # Handle glob for exp3 which may have a suffix in the filename
         candidates = list(OUTPUTS_DIR.glob(f"{exp_name}*.pkl"))
         resolved = path if path.exists() else (candidates[0] if candidates else None)
         if resolved:
+            logger.info(f"Loading model: {exp_name} from {resolved}...")
             _models[exp_name] = joblib.load(resolved)
-            logger.info(f"Loaded model: {exp_name} from {resolved}")
+            logger.info(f"Model loaded: {exp_name}")
         else:
             logger.warning(f"Model not found, skipping: {exp_name}")
 
@@ -69,6 +69,7 @@ def load_all():
             f"Active model '{ACTIVE_MODEL}' not loaded. "
             f"Available: {list(_models.keys())}"
         )
+    logger.info(f"All models ready. Active: {ACTIVE_MODEL}")
 
 
 def get_pipeline():
