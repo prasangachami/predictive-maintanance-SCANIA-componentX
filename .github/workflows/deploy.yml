@@ -68,6 +68,14 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars=GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},GCS_BUCKET=${{ secrets.GCS_BUCKET }},MODEL_VERSION=${{ secrets.MODEL_VERSION }},ACTIVE_MODEL=${{ secrets.ACTIVE_MODEL }}
 
+      - name: Allow public access to Cloud Run
+        run: |
+          gcloud beta run services add-iam-policy-binding scania-predictive-ml-api \
+            --region=${{ secrets.GCP_REGION }} \
+            --member=allUsers \
+            --role=roles/run.invoker \
+            --project=${{ secrets.GCP_PROJECT_ID }}
+
       - name: Get Cloud Run URL
         run: |
           URL=$(gcloud run services describe scania-predictive-ml-api \
