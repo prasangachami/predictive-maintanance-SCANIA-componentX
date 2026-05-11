@@ -5,6 +5,9 @@ on:
     branches:
       - deploy/prod
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     name: Build and Deploy
@@ -16,16 +19,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Authenticate to Google Cloud (keyless)
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v2.1.10
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v2.1.4
 
       - name: Configure gcloud defaults
         run: |
@@ -34,7 +37,7 @@ jobs:
           gcloud config set run/region ${{ secrets.GCP_REGION }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: '3.11'
 
@@ -92,7 +95,6 @@ jobs:
             --region=${{ secrets.GCP_REGION }} \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --format="value(status.url)")
-          echo "API_URL=$URL" >> $GITHUB_ENV
           echo "✅ API live at: $URL"
           echo "📖 Docs at: $URL/docs"
           sleep 15
