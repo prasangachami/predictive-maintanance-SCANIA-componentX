@@ -10,8 +10,8 @@ from app.predict import load_all, run_inference, get_models_status, ACTIVE_MODEL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-MODEL_VERSION = os.getenv("MODEL_VERSION", "1.0.0")
-
+_raw_version = os.getenv("MODEL_VERSION", "1.0.0")
+MODEL_VERSION = _raw_version if _raw_version and _raw_version.strip() else "1.0.0"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
