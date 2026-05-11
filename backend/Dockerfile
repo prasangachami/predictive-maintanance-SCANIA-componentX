@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    gcc g++ libgomp1 \
+    gcc g++ libgomp1 curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -15,7 +15,6 @@ COPY app/               ./app/
 COPY src/               ./src/
 COPY scania_pipeline.py ./
 COPY scania_labels.py   ./
-COPY outputs/models/    ./outputs/models/
 
 ENV PORT=8080
 ENV GCP_PROJECT_ID=predictive-maintenance-scania

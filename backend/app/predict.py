@@ -44,8 +44,14 @@ _models   = {}
 
 
 def load_all():
-    """Load preprocessing pipeline + all experiment models at startup."""
+    """Load preprocessing pipeline + all experiment models at startup.
+    Downloads from GCS if not available locally."""
     global _pipeline, _models
+
+    # Download from GCS if models not present locally
+    if not PIPELINE_PATH.exists():
+        logger.info("Models not found locally — downloading from GCS...")
+        _download_models_from_gcs()
 
     logger.info(f"Loading pipeline from {PIPELINE_PATH}...")
     if not PIPELINE_PATH.exists():
@@ -70,6 +76,47 @@ def load_all():
             f"Available: {list(_models.keys())}"
         )
     logger.info(f"All models ready. Active: {ACTIVE_MODEL}")
+
+
+def _download_models_from_gcs():
+    """Download model artifacts from GCS bucket."""
+    import os
+    try:
+        from google.cloud import storage
+        bucket_name = os.getenv("GCS_BUCKET", "predictive-maintenance-scania-artifacts")
+        version     = os.getenv("MODEL_VERSION", "1.0.0").lstrip("v")
+        prefix      = f"models/v{version}/" if not version.startswith("v") else f"models/{version}/"
+
+        # Try both with and without v prefix
+        prefixes = [f"models/v{version}/", f"models/{version}/"]
+
+        OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+
+        downloaded = 0
+        for pfx in prefixes:
+            blobs = list(bucket.list_blobs(prefix=pfx))
+            if blobs:
+                for blob in blobs:
+                    filename = blob.name.split("/")[-1]
+                    if not filename.endswith(".pkl"):
+                        continue
+                    dest = OUTPUTS_DIR / filename
+                    logger.info(f"Downloading {blob.name} → {dest}")
+                    blob.download_to_filename(str(dest))
+                    downloaded += 1
+                break
+
+        if downloaded == 0:
+            raise FileNotFoundError(
+                f"No .pkl files found in gs://{bucket_name}/{prefixes[0]}"
+            )
+        logger.info(f"Downloaded {downloaded} model files from GCS.")
+
+    except Exception as e:
+        logger.error(f"GCS download failed: {e}")
+        raise
 
 
 def get_pipeline():
