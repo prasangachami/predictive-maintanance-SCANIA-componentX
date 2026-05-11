@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run fast tests only (no data required)
+      - name: Run fast tests only
         run: |
           pip install -r requirements.txt --quiet
           pip install pytest httpx pytest-asyncio --quiet
@@ -57,6 +57,7 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy scania-predictive-ml-api \
+            --quiet \
             --image=europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/scania-predictive-ml-api:${{ github.sha }} \
             --region=${{ secrets.GCP_REGION }} \
             --platform=managed \
@@ -71,24 +72,21 @@ jobs:
       - name: Allow public access to Cloud Run
         run: |
           gcloud beta run services add-iam-policy-binding scania-predictive-ml-api \
+            --quiet \
             --region=${{ secrets.GCP_REGION }} \
             --member=allUsers \
             --role=roles/run.invoker \
             --project=${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Get Cloud Run URL
+      - name: Get Cloud Run URL and smoke test
         run: |
           URL=$(gcloud run services describe scania-predictive-ml-api \
+            --quiet \
             --region=${{ secrets.GCP_REGION }} \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --format="value(status.url)")
-          echo "API live at: $URL"
-
-      - name: Smoke test deployed API
-        run: |
+          echo "✅ API live at: $URL"
+          echo "📖 Docs at: $URL/docs"
           sleep 10
-          URL=$(gcloud run services describe scania-predictive-ml-api \
-            --region=${{ secrets.GCP_REGION }} \
-            --project=${{ secrets.GCP_PROJECT_ID }} \
-            --format="value(status.url)")
           curl -f $URL/health
+          echo "✅ Health check passed"
