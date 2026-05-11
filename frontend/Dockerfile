@@ -1,8 +1,14 @@
 FROM node:20-slim AS builder
+
 WORKDIR /app
-COPY package.json .
-RUN npm install
-COPY . .
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY index.html vite.config.js postcss.config.js tailwind.config.js ./
+COPY src/ ./src/
+COPY public/ ./public/
+
 RUN npm run build
 
 FROM nginx:alpine
