@@ -77,7 +77,7 @@ jobs:
             --max-instances=10 \
             --port=8080 \
             --allow-unauthenticated \
-            --set-env-vars=GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},GCS_BUCKET=${{ secrets.GCS_BUCKET }},MODEL_VERSION=${{ secrets.MODEL_VERSION }},ACTIVE_MODEL=${{ secrets.ACTIVE_MODEL }}
+            --update-env-vars="GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},GCS_BUCKET=${{ secrets.GCS_BUCKET }},MODEL_VERSION=${{ secrets.MODEL_VERSION }},ACTIVE_MODEL=${{ secrets.ACTIVE_MODEL }}"
 
       - name: Allow public access to Cloud Run
         env:
