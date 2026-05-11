@@ -42,6 +42,7 @@ class TruckInput(BaseModel):
 
 
 class PredictionResponse(BaseModel):
+    model_config = {"protected_namespaces": ()} 
     truck_id: str
 
     # Binary prediction (from binary label system used in training)
