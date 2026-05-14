@@ -96,11 +96,18 @@ CONFIG = {
     "pipeline_path":   os.path.join(ROOT, "backend/outputs", "models", "pipeline_state.pkl"),
 
     # Optuna trial counts (full run) — 100 trials for meaningful search
+    # "n_trials_exp1":   100,
+    # "n_trials_exp2":   100,
+    # "n_trials_exp3":   100,
+    # "n_trials_exp4":   100,
+    # "n_trials_sens":    30,
+
     "n_trials_exp1":   100,
     "n_trials_exp2":   100,
     "n_trials_exp3":   100,
     "n_trials_exp4":   100,
     "n_trials_sens":    30,
+
 
     # Optuna trial counts (fast/dev run)
     "n_trials_fast":   5,
@@ -282,7 +289,7 @@ def run_experiments(
     n_trials_exp3: int  = 100,
     n_trials_exp4: int  = 100,
     random_state:  int  = 42,
-    models_dir:    str  = "outputs/models",
+    models_dir:    str  = CONFIG["models_dir"],
 ) -> dict:
     """
     Run the selected experiments and return their results.

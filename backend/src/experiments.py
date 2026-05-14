@@ -51,6 +51,9 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 warnings.filterwarnings("ignore")
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
+outputs = os.path.join(ROOT, "backend/", "outputs/")
 
 from src.cost_matrix import CostMatrix, SensitivityAnalyser
 from src.model       import (
@@ -100,7 +103,7 @@ def run_exp1_log_loss(
     cost_matrix:   CostMatrix,
     n_trials:      int  = 30,
     random_state:  int  = 42,
-    model_save_dir: str = "outputs/models",
+    model_save_dir: str = "backend/outputs/models",
 ) -> TrainingResult:
     """
     Experiment 1 — LightGBM with standard log-loss (baseline).
@@ -221,7 +224,7 @@ def run_exp2_focal_loss(
     cost_matrix:   CostMatrix,
     n_trials:      int  = 40,
     random_state:  int  = 42,
-    model_save_dir: str = "outputs/models",
+    model_save_dir: str = "backend/outputs/models",
 ) -> TrainingResult:
     """
     Experiment 2 — LightGBM with focal loss.
@@ -316,7 +319,7 @@ def run_exp3_cost_aware_focal(
     fn_weight:     float = 1.0,
     n_trials:      int   = 40,
     random_state:  int   = 42,
-    model_save_dir: str  = "outputs/models",
+    model_save_dir: str  = "backend/outputs/models",
     experiment_name: str = "exp3_cost_aware_focal",
 ) -> TrainingResult:
     """
@@ -429,7 +432,7 @@ def run_exp4_cost_aware_fn05(
     y_test_binary: np.ndarray,
     n_trials:      int  = 40,
     random_state:  int  = 42,
-    model_save_dir: str = "outputs/models",
+    model_save_dir: str = "backend/outputs/models",
 ) -> TrainingResult:
     """
     Experiment 4 — Cost-aware focal loss with fn_weight=0.5.
@@ -541,7 +544,7 @@ def run_sensitivity_analysis(
     fn_weights:    list[float] = None,
     n_trials:      int  = 20,
     random_state:  int  = 42,
-    model_save_dir: str = "outputs/models",
+    model_save_dir: str = "backend/outputs/models",
 ) -> pd.DataFrame:
     """
     Run Experiment 3 across multiple fn_weight values to analyse
@@ -643,7 +646,7 @@ def run_all_experiments(
     n_trials_sens: int  = 30,
     fn_weights:    list = None,
     random_state:  int  = 42,
-    model_save_dir: str = "outputs/models",
+    model_save_dir: str = "backend/outputs/models",
 ) -> dict:
     """
     Run all four experiments plus sensitivity analysis in sequence.

@@ -295,14 +295,14 @@ class FigureGenerator:
 
     Usage
     -----
-    gen = FigureGenerator(tracker, figures_dir="outputs/figures")
+    gen = FigureGenerator(tracker, figures_dir="backend/outputs/figures")
     gen.save_all_figures(y_val_binary, y_test_binary)
     """
 
     def __init__(
         self,
         tracker:     ResultsTracker,
-        figures_dir: str = "outputs/figures",
+        figures_dir: str = "backend/outputs/figures",
     ):
         self.tracker     = tracker
         self.figures_dir = figures_dir
