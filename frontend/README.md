@@ -6,7 +6,7 @@ An interactive dashboard built with React, Vite, and Tailwind CSS that visualise
 
 ## Live Dashboard
 
-> **[Add your deployed URL here]**
+> **[(https://scania-dashboard-185324232016.europe-north1.run.app/)]**
 
 ---
 

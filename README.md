@@ -11,16 +11,25 @@
 
 ## Overview
 
-This repository contains the full implementation of a cost-aware predictive maintenance system trained on the SCANIA Component X dataset. The study compares four LightGBM models trained with different loss functions, evaluated under a real 5×5 industrial cost matrix where missing a failure costs up to 70× more than a false alarm.
+This repository contains the full implementation of a cost-aware predictive maintenance system trained on the SCANIA Component X dataset. The study compares four LightGBM models trained with different loss functions, evaluated under a real 5×5 industrial cost matrix where missing a failure costs up to 40× more than a false alarm.
 
-| Experiment | Loss Function | Test Cost | AUC-ROC | Recall |
-|---|---|---|---|---|
-| Exp 1 | Cross-entropy (baseline) | 46,393 | 0.634 | 0.796 |
-| Exp 2 | Focal loss | 46,345 | 0.633 | 0.810 |
-| Exp 3 | Cost-aware focal (w=1.0) | 49,099 | 0.665 | 1.000 |
-| Exp 4 | Cost-aware focal (w=0.5) | 28,050 | 0.500 | 0.000 |
+### Industrial Cost Matrix (5×5)
 
-**Key finding:** Cost-aware training improved recall to 1.000 but increased total cost under the original cost matrix. A minimum recall constraint on the threshold optimiser is identified as the critical missing component for genuine cost reduction.
+|  | Pred 0 | Pred 1 | Pred 2 | Pred 3 | Pred 4 |
+|---|---|---|---|---|---|
+| **Actual 0** | 0 | 7 | 8 | 9 | 10 |
+| **Actual 1** | 200 | 0 | 7 | 8 | 9 |
+| **Actual 2** | 300 | 200 | 0 | 7 | 8 |
+| **Actual 3** | 400 | 300 | 200 | 0 | 7 |
+| **Actual 4** | 500 | 400 | 300 | 200 | 0 |
+
+### Cost-Aware Focal Loss Formula
+
+The class weight α is derived analytically from the cost matrix:
+
+```
+α = μ_FN / (μ_FN + μ_FP) = 350 / 358.5 ≈ 0.976
+```
 
 ---
 
@@ -101,8 +110,8 @@ Results are saved to `backend/outputs/results/` and model files to `backend/outp
 
 | Resource | Link |
 |---|---|
-| Interactive Dashboard | [Live dashboard](#) ← add your URL |
-| Thesis Paper | [University repository](#) ← add your URL |
+| Interactive Dashboard | [https://scania-dashboard-185324232016.europe-north1.run.app/]
+| Thesis Paper | [University repository] |
 | Dataset Paper | [arXiv:2401.15199](https://arxiv.org/abs/2401.15199) |
 | Backend API | See [backend/README.md](backend/README.md) |
 | Frontend Dashboard | See [frontend/README.md](frontend/README.md) |
@@ -111,23 +120,14 @@ Results are saved to `backend/outputs/results/` and model files to `backend/outp
 
 ## Key Results
 
-### Industrial Cost Matrix (5×5)
+| Experiment | Loss Function | Test Cost | AUC-ROC | Recall |
+|---|---|---|---|---|
+| Exp 1 | Cross-entropy (baseline) | 46,393 | 0.634 | 0.796 |
+| Exp 2 | Focal loss | 46,345 | 0.633 | 0.810 |
+| Exp 3 | Cost-aware focal (w=1.0) | 49,099 | 0.665 | 1.000 |
+| Exp 4 | Cost-aware focal (w=0.5) | 28,050 | 0.500 | 0.000 |
 
-|  | Pred 0 | Pred 1 | Pred 2 | Pred 3 | Pred 4 |
-|---|---|---|---|---|---|
-| **Actual 0** | 0 | 7 | 8 | 9 | 10 |
-| **Actual 1** | 200 | 0 | 7 | 8 | 9 |
-| **Actual 2** | 300 | 200 | 0 | 7 | 8 |
-| **Actual 3** | 400 | 300 | 200 | 0 | 7 |
-| **Actual 4** | 500 | 400 | 300 | 200 | 0 |
-
-### Cost-Aware Focal Loss Formula
-
-The class weight α is derived analytically from the cost matrix:
-
-```
-α = μ_FN / (μ_FN + μ_FP) = 350 / 358.5 ≈ 0.976
-```
+**Key finding:** Cost-aware training improved recall to 1.000 but increased total cost under the original cost matrix. A minimum recall constraint on the threshold optimiser is identified as the critical missing component for genuine cost reduction.
 
 This gives failure instances 40× more gradient weight than healthy instances during training.
 
