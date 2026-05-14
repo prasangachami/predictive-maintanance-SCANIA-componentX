@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY app/               ./app/
 COPY src/               ./src/
-COPY scania_pipeline.py ./
+COPY src/data/pipeline.py ./
 
 ENV PORT=8080
 ENV GCP_PROJECT_ID=predictive-maintenance-scania
