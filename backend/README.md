@@ -1,188 +1,60 @@
-# SCANIA ComponentX — Predictive Maintenance Thesis
-## Cost-Aware Learning for Failure Prediction in Industrial Predictive Maintenance
+# Backend — Model Training, API & Experiments
+
+This folder contains the full ML pipeline: data preprocessing, model training, experiment management, threshold optimisation, and a FastAPI REST API for serving predictions.
 
 ---
 
-## Project structure
+## Structure
 
 ```
-scania_predictive_maintenance/
+backend/
+├── app/                        ← FastAPI REST API
+│   ├── main.py                 ← API entry point and routes
+│   ├── predict.py              ← prediction logic using saved models
+│   └── schemas.py              ← request and response schemas
 │
-├── data/
-│   ├── raw/                         ← original CSV files (never modified, gitignored)
-│   │   ├── train_operational_readouts.csv
-│   │   ├── train_tte.csv
-│   │   ├── train_specifications.csv
-│   │   ├── validation_operational_readouts.csv
-│   │   ├── validation_labels.csv
-│   │   ├── validation_specifications.csv
-│   │   ├── test_operational_readouts.csv
-│   │   ├── test_labels.csv
-│   │   └── test_specifications.csv
-│   └── processed/                   ← flat tables saved as .parquet (gitignored)
+├── src/                        ← all reusable source code
+│   ├── data/
+│   │   └── pipeline.py         ← SCANIAPipeline — full preprocessing class
+│   ├── model.py                ← LightGBM wrapper with custom loss support
+│   ├── experiments.py          ← experiment runner (all four experiments)
+│   ├── cost_matrix.py          ← 5×5 industrial cost matrix and evaluation
+│   ├── data_loader.py          ← data loading utilities
+│   ├── registry.py             ← experiment registry and configuration
+│   ├── results_tracker.py      ← saves and loads experiment results
+│   └── utils.py                ← shared helpers
 │
-├── src/                             ← all importable Python source code
-│   ├── __init__.py
-│   ├── cost_matrix.py               ← Step 1: industrial cost matrix + threshold optimiser
-│   ├── model.py                     ← Step 2: LightGBM trainer + 3 loss functions
-│   ├── experiments.py               ← Step 3: 3 experiment runners + sensitivity analysis
-│   ├── results_tracker.py           ← Step 4: logging, figures, report
-│   └── utils.py
+├── configs/                    ← per-experiment YAML configurations
+│   ├── exp1.yaml
+│   ├── exp2.yaml
+│   ├── exp3.yaml
+│   └── exp4.yaml
 │
-├── tests/                           ← pytest test suite — mirrors src/
-│   ├── test_scania_pipeline.py      ← 57 tests (preprocessing)
-│   ├── test_cost_matrix.py          ← 60 tests
-│   ├── test_model.py                ← 65 tests
-│   ├── test_experiments.py          ← 45 tests
-│   └── test_results_tracker.py      ← 65 tests
+├── notebooks/                  ← analysis and result generation notebooks
+│   ├── 00_exploration.ipynb
+│   ├── 05_diagnostic.ipynb
+│   ├── 06_merge_results.ipynb  ← generates all figures and result CSVs
+│   └── Data_analysis.ipynb
 │
-├── notebooks/
-│   ├── 01_eda.ipynb
-│   ├── 02_preprocessing.ipynb
-│   ├── 03_experiments.ipynb
-│   └── 04_results_figures.ipynb
+├── outputs/                    ← generated results (committed)
+│   ├── figures/                ← all thesis figures (PNG)
+│   ├── models/                 ← saved model .pkl files
+│   └── results/                ← CSV result tables
 │
-├── outputs/                         ← generated artefacts (gitignored)
-│   ├── models/                      ← saved .pkl pipeline + 3 trained models
-│   ├── figures/                     ← all .png plots for thesis
-│   └── results/                     ← metrics CSVs + experiment_report.txt
+├── tests/                      ← pytest test suite
+│   ├── test_scania_pipeline.py
+│   ├── test_cost_matrix.py
+│   ├── test_experiments.py
+│   ├── test_model.py
+│   ├── test_results_tracker.py
+│   └── test_api.py
 │
-├── scania_pipeline.py               ← preprocessing pipeline (existing)
-├── scania_labels.py                 ← label handling (existing)
-├── run_experiments.py               ← Step 5: single entry point
-├── pytest.ini
-├── requirements.txt
-├── .gitignore
-└── README.md
+├── Dockerfile                  ← containerised backend
+├── requirements.txt            ← Python dependencies
+├── conftest.py                 ← pytest path configuration
+└── pytest.ini                  ← pytest settings
 ```
 
----
-
-## Research questions
-
-- **RQ1**: Does cost-aware training reduce total maintenance cost vs standard loss?
-- **RQ2**: How does varying failure-class weight affect the FN/FP trade-off?
-- **RQ3**: How sensitive is performance to the choice of class weights?
-
----
-
-## Experiment design
-
-| | Experiment | Loss function | Tuned param | Answers |
-|--|--|--|--|--|
-| Exp 1 | Log-loss baseline | Binary cross-entropy | LGBM hparams | RQ1 baseline |
-| Exp 2 | Focal loss | FocalLoss(gamma) | gamma + LGBM hparams | RQ1, RQ2 |
-| Exp 3 | Cost-aware focal (proposed) | CostAwareFocalLoss | gamma + fn_weight | RQ1, RQ2, RQ3 |
-
----
-
-## How to run
-
-### Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### Place raw data files
-```
-data/raw/train_operational_readouts.csv
-data/raw/train_tte.csv
-data/raw/train_specifications.csv
-data/raw/validation_operational_readouts.csv
-data/raw/validation_labels.csv
-data/raw/validation_specifications.csv
-data/raw/test_operational_readouts.csv
-data/raw/test_labels.csv
-data/raw/test_specifications.csv
-```
-
-### Run commands
-
-```bash
-# Full run — all 3 experiments + sensitivity + figures + report
-python run_experiments.py --all
-
-# Quick development run (3 Optuna trials per experiment)
-python run_experiments.py --all --fast
-
-# Pipeline preprocessing only
-python run_experiments.py --pipeline-only
-
-# Run specific experiments (skip pipeline if already processed)
-python run_experiments.py --exp1 --skip-pipeline
-python run_experiments.py --exp2 --skip-pipeline
-python run_experiments.py --exp3 --skip-pipeline
-python run_experiments.py --exp1 --exp2 --exp3 --skip-pipeline
-
-# Sensitivity analysis only
-python run_experiments.py --sensitivity --skip-pipeline
-
-# Custom fn_weights for sensitivity analysis
-python run_experiments.py --sensitivity --fn-weights 0.5 1.0 2.0 3.0 --skip-pipeline
-
-# Regenerate figures from saved results (no re-training)
-python run_experiments.py --figures-only
-
-# Override data directory
-python run_experiments.py --all --data-dir /path/to/data
-
-# Skip figure/report generation
-python run_experiments.py --all --no-figures --no-report
-
-# Set random seed
-python run_experiments.py --all --random-state 123
-```
-
-### Run tests
-```bash
-# All tests
-pytest tests/ -v --tb=short
-
-# Specific test file
-pytest tests/test_cost_matrix.py   -v
-pytest tests/test_model.py         -v
-pytest tests/test_experiments.py   -v
-pytest tests/test_results_tracker.py -v
-
-# Skip slow tests (default)
-pytest tests/ -v -m "not slow"
-
-# Run slow tests (requires real data, takes ~10 min)
-pytest tests/ -v -m slow
-```
-
----
-
-## Output files
-
-After a full run:
-
-```
-outputs/
-├── models/
-│   ├── pipeline_state.pkl           ← fitted preprocessing pipeline
-│   ├── exp1_log_loss.pkl            ← trained Exp1 model + thresholds
-│   ├── exp2_focal_loss.pkl          ← trained Exp2 model + thresholds
-│   └── exp3_cost_aware_focal_*.pkl  ← trained Exp3 models
-│
-├── results/
-│   ├── results.csv                  ← all experiment metrics
-│   ├── comparison_table.csv         ← clean thesis comparison table
-│   ├── sensitivity_results.csv      ← fn_weight sweep results
-│   └── experiment_report.txt        ← plain-text thesis report
-│
-└── figures/
-    ├── cost_comparison.png          ← RQ1: bar chart Exp1 vs Exp2 vs Exp3
-    ├── roc_comparison_test.png      ← ROC curves
-    ├── confusion_matrices.png       ← 5x5 cost-weighted confusion matrices
-    ├── prob_distributions.png       ← P(failure) histograms
-    ├── threshold_comparison.png     ← RQ2: optimal thresholds per experiment
-    ├── sensitivity_curve.png        ← RQ3: cost vs fn_weight
-    ├── cost_breakdown_exp3.png      ← cost heatmap for proposed method
-    └── optuna_history_*.png         ← hyperparameter tuning history
-```
-
----
 
 ## Industrial cost matrix
 
@@ -206,3 +78,174 @@ Actual 4   500    400     300     200       0
 - Binary labels `{0,1}` → model training only
 - 5-class `temporal_class` `{0,1,2,3,4}` → cost evaluation only
 - These two systems never mix.
+
+---
+
+## Installation
+
+From the project root:
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+Or inside the `backend/` folder:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Running Experiments
+
+From the **project root** (recommended):
+
+```bash
+# All four experiments
+python run_experiments.py --exp all
+
+# Individual experiments
+python run_experiments.py --exp exp1   # cross-entropy baseline
+python run_experiments.py --exp exp2   # focal loss
+python run_experiments.py --exp exp3   # cost-aware focal, fn_weight=1.0
+python run_experiments.py --exp exp4   # cost-aware focal, fn_weight=0.5
+
+# Sensitivity analysis (fn_weight sweep: 0.25 → 3.0)
+python run_experiments.py --exp sensitivity
+```
+
+Results are saved to `backend/outputs/results/` and model files to `backend/outputs/models/`.
+
+---
+
+## Preprocessing Pipeline
+
+The `SCANIAPipeline` class in `src/data/pipeline.py` handles:
+
+- Loading raw sensor readouts from `data/raw/`
+- Histogram feature aggregation (sum, mean, max per variable)
+- Counter feature aggregation (last value, delta, rate of change)
+- Stress ratio features (top-quartile ratio, entropy, concentration)
+- Counter trend features (linear slope, recent slope, slope acceleration)
+- Feature filtering (constant removal, correlation filtering)
+- Writing processed feature vectors to `data/processed/`
+
+```python
+from backend.src.data.pipeline import SCANIAPipeline
+
+pipeline = SCANIAPipeline(
+    data_dir           = "data/raw/",   # defaults to project root data/raw/
+    variance_threshold = 0.01,
+    corr_threshold     = 0.95,
+    cost_matrix        = COST_MATRIX,
+    plot               = True,
+)
+pipeline.run()
+```
+
+---
+
+## Experiment Design
+
+All four experiments share the same setup:
+
+| Setting | Value |
+|---|---|
+| Model | LightGBM |
+| Hyperparameter tuning | Optuna TPE — 100 trials per experiment |
+| Tuning objective | Minimise total validation cost |
+| Threshold search | 50 candidates per position (~230,300 combinations) |
+| Evaluation | Test set evaluated once, after all tuning is complete |
+
+| Experiment | Loss Function | fn_weight | α | Test Cost | AUC |
+|---|---|---|---|---|---|
+| Exp 1 | Cross-entropy | — | — | 46,393 | 0.634 |
+| Exp 2 | Focal loss | — | — | 46,345 | 0.633 |
+| Exp 3 | Cost-aware focal | 1.0 | 0.976 | 49,099 | 0.665 |
+| Exp 4 | Cost-aware focal | 0.5 | 0.954 | 28,050 | 0.500 |
+
+---
+
+## FastAPI — REST API
+
+The API serves predictions from saved models.
+
+### Start the API
+
+```bash
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+
+Or with Docker:
+
+```bash
+docker build -t scania-backend .
+docker run -p 8000:8000 scania-backend
+```
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | Health check |
+| GET | `/experiments` | List all experiments and results |
+| POST | `/predict` | Predict failure class for a vehicle |
+
+### Example request
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"experiment": "exp3", "features": {...}}'
+```
+
+API documentation available at: `http://localhost:8000/docs`
+
+---
+
+## Running Tests
+
+```bash
+cd backend
+python -m pytest tests/ -v
+```
+
+Run a specific test module:
+
+```bash
+python -m pytest tests/test_scania_pipeline.py -v
+python -m pytest tests/test_cost_matrix.py -v
+python -m pytest tests/test_api.py -v
+
+---
+
+## Generated Figures
+
+Running `notebooks/06_merge_results.ipynb` generates all thesis figures in `outputs/figures/`:
+
+| Figure | Description |
+|---|---|
+| `fig4_1_cost_auc.png` | Cost and AUC comparison across experiments |
+| `fig4_2_precision_recall.png` | Precision, recall, F1 by experiment |
+| `fig4_3_sensitivity.png` | Sensitivity analysis — cost and AUC vs fn_weight |
+| `roc_comparison_test.png` | ROC curves for all experiments |
+| `feature_importance_all.png` | LightGBM feature importance (gain) |
+| `threshold_comparison.png` | Threshold configuration per experiment |
+| `sensitivity_curve.png` | fn_weight sensitivity curve |
+| `cost_breakdown_exp3.png` | FN vs FP cost breakdown for Exp 3 |
+
+---
+
+## Key Design Decisions
+
+**Cost-aware focal loss** — the class weight α is derived analytically from the cost matrix:
+```
+α = μ_FN / (μ_FN + μ_FP) = 350 / 358.5 ≈ 0.976
+```
+This gives failure instances 40× more gradient weight than healthy instances during training, without manual tuning.
+
+**Threshold optimisation** — four decision thresholds (t1–t4) map the model's output probability to one of five prediction classes. The optimiser searches ~230,300 combinations on the validation set only. The test set is never used during optimisation.
+
+**Sensitivity analysis** — fn_weight is varied across seven values (0.25, 0.50, 0.75, 1.00, 1.50, 2.00, 3.00). Below fn_weight = 1.0, AUC collapses. Above fn_weight = 1.0, cost improvement is flat due to alpha saturation.
