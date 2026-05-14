@@ -77,4 +77,4 @@ data/interim/
 # Keep the folder structure in git
 !data/raw/.gitkeep
 !data/processed/.gitkeep
-!data/interim/.gitkeep
+!data/interim/.gitkeepfrontend/dist/
