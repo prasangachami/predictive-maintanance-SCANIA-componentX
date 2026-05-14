@@ -72,7 +72,7 @@ Dataset paper: Kharazian et al. (2025), *Scientific Data* — [arXiv:2401.15199]
 ### 3. Run preprocessing
 
 ```bash
-python run_preprocessing.py
+python run_experiments.py --pipeline-only
 ```
 
 This reads from `data/raw/` and writes processed feature vectors to `data/processed/`.
@@ -179,29 +179,3 @@ docker run -p 80:80 scania-frontend
 The SCANIA Component X dataset is subject to a data-sharing agreement and is not included in this repository. Researchers wishing to reproduce the experiments should obtain access through the IDA 2024 Industrial Challenge organisers.
 
 ---
-
-## Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@misc{scania-componentx-cost-aware,
-  author    = {Prasanga Chami},
-  title     = {Cost-Aware Learning for Failure Prediction in Industrial Predictive Maintenance},
-  year      = {2025},
-  publisher = {GitHub},
-  url       = {https://github.com/prasangachami/predictive-maintanance-SCANIA-componentX}
-}
-```
-
-Dataset citation:
-```bibtex
-@article{kharazian2025scania,
-  title   = {SCANIA Component X dataset: a real-world multivariate time series dataset for predictive maintenance},
-  author  = {Kharazian, Zahra and Lindgren, Tony and Magnússon, Sindri and Steinert, Olof and Andersson Reyna, Oskar},
-  journal = {Scientific Data},
-  volume  = {12},
-  pages   = {493},
-  year    = {2025}
-}
-```

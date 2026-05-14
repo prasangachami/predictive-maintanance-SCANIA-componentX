@@ -55,30 +55,6 @@ backend/
 └── pytest.ini                  ← pytest settings
 ```
 
-
-## Industrial cost matrix
-
-```
-         Pred 0  Pred 1  Pred 2  Pred 3  Pred 4
-Actual 0    0       7       8       9      10
-Actual 1   200      0       7       8       9
-Actual 2   300    200       0       7       8
-Actual 3   400    300     200       0       7
-Actual 4   500    400     300     200       0
-```
-
-**Class definitions:**
-- Class 0 = > 48 steps before failure (healthy)
-- Class 1 = 12–24 steps before failure
-- Class 2 = 24–48 steps before failure
-- Class 3 = 6–12 steps before failure
-- Class 4 = 0–6 steps before failure (imminent)
-
-**Two label systems:**
-- Binary labels `{0,1}` → model training only
-- 5-class `temporal_class` `{0,1,2,3,4}` → cost evaluation only
-- These two systems never mix.
-
 ---
 
 ## Installation
@@ -218,6 +194,7 @@ Run a specific test module:
 python -m pytest tests/test_scania_pipeline.py -v
 python -m pytest tests/test_cost_matrix.py -v
 python -m pytest tests/test_api.py -v
+```
 
 ---
 
