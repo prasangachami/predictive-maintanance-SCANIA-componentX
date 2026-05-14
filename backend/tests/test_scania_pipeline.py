@@ -26,7 +26,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from scania_pipeline import (
+from src.data.pipeline import (
     HISTOGRAM_VARS,
     COUNTER_COLS,
     ID_COL,

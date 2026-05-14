@@ -23,6 +23,7 @@ Usage:
 """
 
 import os
+import sys
 import pickle
 import warnings
 import numpy as np
@@ -1306,9 +1307,12 @@ class SCANIAPipeline:
     save(path) / load(path)      → persist fitted state
     """
 
+    ROOT = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, ROOT)
+
     def __init__(
         self,
-        data_dir:          str   = "data/",
+        data_dir:           str   = os.path.join(ROOT, "data", "raw"),
         variance_threshold: float = 0.01,
         corr_threshold:     float = 0.95,
         mi_top_n:           int   = 80,
@@ -1509,8 +1513,10 @@ if __name__ == "__main__":
         "fn_cost": 500,   # miss a failure → breakdown cost
     }
 
+
+
     pipeline = SCANIAPipeline(
-        data_dir           = "data/",
+        data_dir           = "../data/",
         variance_threshold = 0.01,
         corr_threshold     = 0.95,
         mi_top_n           = 80,

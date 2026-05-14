@@ -55,6 +55,10 @@ from typing import Optional
 warnings.filterwarnings("ignore")
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
+outputs = os.path.join(ROOT, "backend/", "outputs/")
+
 
 from src.cost_matrix import (
     CostMatrix, ThresholdOptimiser,
@@ -115,7 +119,7 @@ class ResultsTracker:
         "best_iteration",
     )
 
-    def __init__(self, output_dir: str = "outputs/results"):
+    def __init__(self, output_dir: str = outputs):
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
         self._records:  list[dict]           = []

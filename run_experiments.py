@@ -61,9 +61,9 @@ warnings.filterwarnings("ignore")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
-from scania_pipeline  import SCANIAPipeline
-from src.cost_matrix  import CostMatrix
-from src.experiments  import (
+from backend.src.data.pipeline  import SCANIAPipeline
+from backend.src.cost_matrix  import CostMatrix
+from backend.src.experiments  import (
     run_exp1_log_loss,
     run_exp2_focal_loss,
     run_exp3_cost_aware_focal,
@@ -71,7 +71,7 @@ from src.experiments  import (
     run_sensitivity_analysis,
     build_comparison_table,
 )
-from src.results_tracker import (
+from backend.src.results_tracker import (
     ResultsTracker,
     FigureGenerator,
     ReportGenerator,
@@ -88,12 +88,12 @@ CONFIG = {
     "processed_dir":   os.path.join(ROOT, "data", "processed"),
 
     # Output directories
-    "models_dir":      os.path.join(ROOT, "outputs", "models"),
-    "figures_dir":     os.path.join(ROOT, "outputs", "figures"),
-    "results_dir":     os.path.join(ROOT, "outputs", "results"),
+    "models_dir":      os.path.join(ROOT, "backend/outputs", "models"),
+    "figures_dir":     os.path.join(ROOT, "backend/outputs", "figures"),
+    "results_dir":     os.path.join(ROOT, "backend/outputs", "results"),
 
     # Pipeline state file
-    "pipeline_path":   os.path.join(ROOT, "outputs", "models", "pipeline_state.pkl"),
+    "pipeline_path":   os.path.join(ROOT, "backend/outputs", "models", "pipeline_state.pkl"),
 
     # Optuna trial counts (full run) — 100 trials for meaningful search
     "n_trials_exp1":   100,
