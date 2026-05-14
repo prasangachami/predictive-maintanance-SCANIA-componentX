@@ -42,6 +42,8 @@ application_default_credentials.json
 # Secrets and environment files
 .env
 .env.*
+.venv
+.venv.*
 secrets/
 credentials/
 

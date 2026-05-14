@@ -3,7 +3,7 @@
 Cost-aware learning for failure prediction in industrial predictive maintenance.
 
 ## Repository structure
-├── backend/   — FastAPI ML serving API (Python, LightGBM)
+├── backend/   — FastAPI ML serving API (Python, LightGBM) - (backend/README.md)
 ├── frontend/  — React thesis results dashboard
 └── .github/   — CI/CD pipeline (GitHub Actions → Cloud Run)
 ## Live services
